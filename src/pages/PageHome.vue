@@ -74,7 +74,15 @@
                   icon="fas fa-retweet"
                   size="sm"
                 />
-                <q-btn flat round color="grey" icon="far fa-heart" size="sm" />
+                <q-btn
+                  flat
+                  round
+                  :color="qweet.liked ? 'red' : 'grey'"
+                  :icon="qweet.liked ? 'fas fa-heart' : 'far fa-heart'"
+                  size="sm"
+                  @click="toggleLiked(qweet)"
+                />
+
                 <q-btn
                   flat
                   round
@@ -110,6 +118,7 @@ export default defineComponent({
       let newQweet = {
         content: this.newQweetConent,
         date: Date.now(),
+        liked: false,
       };
       // Add a new document with a generated id.
       db.collection("qweets")
@@ -133,6 +142,20 @@ export default defineComponent({
           console.error("Error removing document: ", error);
         });
     },
+    toggleLiked(qweet) {
+      db.collection("qweets")
+        .doc(qweet.id)
+        .update({
+          liked: !qweet.liked,
+        })
+        .then(() => {
+          console.log("Document successfully updated!");
+        })
+        .catch((error) => {
+          // The document probably doesn't exist.
+          console.error("Error updating document: ", error);
+        });
+    },
   },
   mounted() {
     db.collection("qweets")
@@ -147,6 +170,10 @@ export default defineComponent({
           }
           if (change.type === "modified") {
             console.log("Modified qweet: ", qweetchange);
+            const index = this.qweets.findIndex(
+              (qweet) => (qweet.id = qweetchange.id)
+            );
+            Object.assign(this.qweets[index], qweetchange);
           }
           if (change.type === "removed") {
             console.log("Removed qweet: ", qweetchange);
