@@ -99,17 +99,7 @@ export default defineComponent({
   data() {
     return {
       newQweetConent: "",
-      qweets: [
-        {
-          content: "The more you know yourself, the more you forgive yourself.",
-          date: 1642318298922,
-        },
-        {
-          content:
-            "There is only one corner of the universe you can be certain of improving, and that's your own self.",
-          date: 1642314803511,
-        },
-      ],
+      qweets: [],
       formatDistance,
     };
   },
