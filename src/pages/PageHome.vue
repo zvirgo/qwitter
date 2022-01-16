@@ -38,7 +38,7 @@
           enter-active-class="animated fadeIn slow"
           leave-active-class="animated fadeOut slow"
         >
-          <q-item v-for="qweet in qweets" :key="qweet.date" class="q-py-md">
+          <q-item v-for="qweet in qweets" :key="qweet.id" class="q-py-md">
             <q-item-section avatar top>
               <q-avatar>
                 <img src="https://cdn.quasar.dev/img/avatar2.jpg" />
@@ -49,9 +49,11 @@
               <q-item-label class="text-subtitle1">
                 <strong>Bahareh Zeinali</strong>
                 <span class="text-grey-7">
-                  @zeinali_bahareh &bull; <br class="lt-md" />{{
+                  @zeinali_bahareh &bull; <br class="lt-md" />
+                  {{ qweet.date }}
+                  <!-- {{
                     formatDistance(qweet.date, new Date())
-                  }}
+                  }} -->
                 </span>
               </q-item-label>
               <q-item-label class="text-body1">
@@ -93,7 +95,7 @@
 <script>
 import { defineComponent } from "vue";
 import { formatDistance } from "date-fns";
-
+import db from "src/boot/firebase";
 export default defineComponent({
   name: "PageHome",
   data() {
@@ -109,14 +111,52 @@ export default defineComponent({
         content: this.newQweetConent,
         date: Date.now(),
       };
-      this.qweets.unshift(newQweet);
+      // Add a new document with a generated id.
+      db.collection("qweets")
+        .add(newQweet)
+        .then((docRef) => {
+          console.log("Document written with ID: ", docRef.id);
+        })
+        .catch((error) => {
+          console.error("Error adding document: ", error);
+        });
       this.newQweetConent = "";
     },
     deleteQweet(qweet) {
-      let dateToDelete = qweet.date;
-      let index = this.qweets.findIndex((qweet) => qweet.date === dateToDelete);
-      this.qweets.splice(index, 1);
+      db.collection("qweets")
+        .doc(qweet.id)
+        .delete()
+        .then(() => {
+          console.log("Document successfully deleted!");
+        })
+        .catch((error) => {
+          console.error("Error removing document: ", error);
+        });
     },
+  },
+  mounted() {
+    db.collection("qweets")
+      .orderBy("date")
+      .onSnapshot((snapshot) => {
+        snapshot.docChanges().forEach((change) => {
+          const qweetchange = change.doc.data();
+          qweetchange.id = change.doc.id;
+          if (change.type === "added") {
+            console.log("New qweet: ", qweetchange);
+            this.qweets.unshift(qweetchange);
+          }
+          if (change.type === "modified") {
+            console.log("Modified qweet: ", qweetchange);
+          }
+          if (change.type === "removed") {
+            console.log("Removed qweet: ", qweetchange);
+            const index = this.qweets.findIndex(
+              (qweet) => (qweet.id = qweetchange.id)
+            );
+            this.qweets.splice(index, 1);
+          }
+        });
+      });
   },
 });
 </script>
