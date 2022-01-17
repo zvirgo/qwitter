@@ -1,6 +1,6 @@
 <template>
   <q-page class="relaive-position">
-    <q-scroll-area class="absolute fullscreen">
+    <q-scroll-area class="absolute full-width full-height">
       <div class="row items-end q-col-gutter-md q-py-lg q-px-md">
         <div class="col">
           <q-input
