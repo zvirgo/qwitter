@@ -50,10 +50,9 @@
                 <strong>Bahareh Zeinali</strong>
                 <span class="text-grey-7">
                   @zeinali_bahareh &bull; <br class="lt-md" />
-                  {{ qweet.date }}
-                  <!-- {{
+                  {{
                     formatDistance(qweet.date, new Date())
-                  }} -->
+                  }}
                 </span>
               </q-item-label>
               <q-item-label class="text-body1">
